@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% from "_macros.html" import route_badges, status_pill, follow_button %}
+{% block title %}{{ notice.title }} | TransitNotice{% endblock %}
+{% block head_extra %}{% if pins %}<link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}">{% endif %}{% endblock %}
+{% block content %}
+<article class="detail">
+  <header>
+    {{ route_badges(notice.routes) }}
+    <h1 class="{% if notice.status == 'withdrawn' %}struck{% endif %}">{{ notice.title }}</h1>
+    <p>{{ status_pill(notice) }} <span class="tag">{{ notice.notice_type }}</span>
+      </p>
+    {% if notice.routes %}<div class="follow-row">{% for r in notice.routes %}{{ follow_button(r) }}{% endfor %}</div>{% endif %}
+  </header>
+
+  {% if notice.status == 'stale' %}
+  <p class="flash flash-warning">This notice was last confirmed {{ notice.confirmed_ago }} ({{ notice.last_confirmed_at|local_dt }}).
+    It may no longer be current. It was {{ notice.lifecycle }} when last verified.</p>
+  {% elif notice.status == 'withdrawn' %}
+  <p class="flash flash-info">The source withdrew this notice on {{ notice.withdrawn_at|local_dt }}.</p>
+  {% endif %}
+
+  <p class="summary">{{ notice.summary or 'No summary provided by the source.' }}</p>
+
+  {% if pins %}
+  <div id="map" class="map map-small" data-pins='{{ pins|tojson }}' data-tiles="{{ 1 if map_tiles else 0 }}" data-center="{{ map_center|join(',') }}" data-single="1"
+       role="img" aria-label="Map showing the location of this notice"></div>
+  <p class="map-note">Map data from OpenStreetMap contributors.</p>
+  {% endif %}
+
+  <div class="facts">
+    <section><h2>Validity</h2>
+      <dl>
+        <dt>Valid from</dt><dd>{{ (notice.valid_from|local_dt) or 'Not stated by the source' }}</dd>
+        <dt>Valid to</dt><dd>{{ (notice.valid_to|local_dt) or 'No end date announced. The notice stays open until the source changes it.' }}</dd>
+        <dt>Published</dt><dd>{{ (notice.published_at|local_dt) or 'Not stated by the source' }}</dd>
+        <dt>Affected area</dt><dd>{{ notice.area or 'Not stated' }}</dd>
+      </dl></section>
+    <section><h2>Verification</h2>
+      <dl>
+        <dt>Notice last confirmed</dt><dd>{{ notice.last_confirmed_at|local_dt }} ({{ notice.confirmed_ago }})</dd>
+        <dt>Source last checked OK</dt><dd>{{ (notice.source_last_success_at|local_dt) or 'Never' }}</dd>
+        <dt>Latest source attempt</dt><dd>{{ (notice.source_last_attempt_at|local_dt) or 'Never' }}
+          {% if notice.source_last_status == 'failed' %}<span class="pill pill-withdrawn">failed</span>{% endif %}</dd>
+        <dt>First seen</dt><dd>{{ notice.first_observed_at|local_dt }}</dd>
+      </dl></section>
+    <section><h2>Source</h2>
+      <dl>
+        <dt>Agency</dt><dd>{{ notice.agency_name }}</dd>
+        <dt>Notice ID</dt><dd>{{ notice.external_id }}</dd>
+        <dt>Collected from</dt><dd>{{ notice.source_name }}</dd>
+        <dt>Original notice</dt><dd>{% if notice.source_url %}<a href="{{ notice.source_url }}" rel="noopener noreferrer" target="_blank">{{ notice.source_url }}</a>{% else %}Not provided{% endif %}</dd>
+      </dl></section>
+  </div>
+
+  {% if is_admin %}<div class="dev-only devbox">database id: {{ notice.id }}
+content_hash: {{ notice.content_hash }}
+revisions: {{ notice.revision_count }}
+lifecycle: {{ notice.lifecycle }}   displayed status: {{ notice.status }}
+valid_from (UTC): {{ notice.valid_from or 'null' }}
+valid_to (UTC): {{ notice.valid_to or 'null' }}
+last_confirmed_at (UTC): {{ notice.last_confirmed_at }}
+latest snapshot: {{ notice.revisions[0].snapshot_json if notice.revisions else 'none' }}</div>{% endif %}
+
+  <section class="history">
+    <h2>Revision history</h2>
+    <ol class="timeline">
+      {% for rev in notice.revisions %}
+      <li>
+        <div class="tl-head"><span class="tag tag-{{ rev.change_type }}">{{ rev.change_type|replace('_', ' ')|capitalize }}</span>
+          <strong>Revision {{ rev.revision_no }}</strong>
+          <time data-ts="{{ rev.observed_at }}">{{ rev.observed_at|local_dt }}</time></div>
+        <p>{{ rev.change_summary }}</p>
+        {% if rev.changes|length > 1 %}
+        <details><summary>{{ rev.changes|length }} fields changed</summary>
+          <ul>{% for c in rev.changes %}<li>{{ c.description }}</li>{% endfor %}</ul></details>
+        {% endif %}
+        {% if is_admin %}<p class="dev-only dev-info">hash={{ rev.content_hash }} changes={{ rev.changes_json }}</p>{% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+</article>
+{% endblock %}
+{% block scripts %}{% if pins %}
+<script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>{% endif %}{% endblock %}

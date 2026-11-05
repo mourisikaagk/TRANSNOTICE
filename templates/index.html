@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% from "_macros.html" import notice_rows, follow_button %}
+{% block content %}
+<section class="verify {% if stats.any_source_failing %}verify-bad{% endif %}" data-change-token="{{ stats.change_token }}">
+  <div>
+    {% if stats.last_verified_at %}
+      <p class="verify-main">Last verified <time data-ts="{{ stats.last_verified_at }}">{{ stats.last_verified_at|ago }}</time>
+        <span class="muted">({{ stats.last_verified_at|local_dt }})</span></p>
+    {% else %}
+      <p class="verify-main">No successful check yet. Nothing here has been verified.</p>
+    {% endif %}
+    {% if stats.any_source_failing %}
+      <p class="verify-warn">The latest source check failed. The notices below are the last known data and have not been re-verified.</p>
+    {% endif %}
+    <p id="change-banner" class="change-banner" hidden>Notices have changed. <a href="">Reload to see them</a></p>
+  </div>
+  <button id="refresh-btn" class="btn btn-primary" type="button">
+    <span class="spinner" aria-hidden="true"></span><span class="btn-label">Check sources now</span>
+  </button>
+</section>
+
+<section class="stats" aria-label="Overview">
+  {% for key, label in [('active','Active'),('upcoming','Upcoming'),('stale','Stale'),('expired','Expired'),('withdrawn','Withdrawn')] %}
+  <a class="stat stat-{{ key }}{% if filters.status == key %} is-selected{% endif %}" href="{{ url_for('index', status=key) }}">
+    <span class="stat-num">{{ stats.counts[key] }}</span><span class="stat-label">{{ label }}</span>
+  </a>
+  {% endfor %}
+</section>
+
+<div class="layout">
+  <div>
+    {% set action = url_for('index') %}
+    {% include "_filters.html" %}
+    <div class="list-bar">
+      <p class="result-count" aria-live="polite">{{ notices|length }} notice{{ '' if notices|length == 1 else 's' }}{% if filters.active_count() %} match your filters{% endif %}</p>
+      <div class="list-tools">
+        {% if filters.route %}{{ follow_button(filters.route) }}{% endif %}
+        <span class="seg" role="group" aria-label="Layout">
+          <button type="button" data-view="feed" aria-pressed="true">Feed</button><button type="button" data-view="board" aria-pressed="false">Table</button>
+        </span>
+      </div>
+    </div>
+    {% if notices %}
+      {{ notice_rows(notices, is_admin) }}
+    {% else %}
+    <div class="empty">
+      {% if filters.active_count() %}
+        <h2>No notices match these filters</h2><p>Try a different route or status, or clear the filters.</p>
+        <a class="btn" href="{{ url_for('index') }}">Clear filters</a>
+      {% else %}
+        <h2>No notices collected yet</h2><p>Use "Check sources now" to collect the first notices.</p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <aside class="sidebar" aria-label="Context">
+    {% if weather_enabled %}
+    <section class="card weather" id="weather" data-url="{{ url_for('api_weather') }}">
+      <h2>Weather</h2><p class="muted small">Loading current conditions...</p>
+    </section>
+    {% endif %}
+    <section class="card">
+      <h2>What changed recently</h2>
+      {% if changes %}
+      <ul class="changes">
+        {% for c in changes %}
+        <li><span class="tag tag-{{ c.change_type }}">{{ c.change_type|replace('_', ' ')|capitalize }}</span>
+          <a href="{{ url_for('notice_detail', notice_id=c.notice_id) }}">{{ c.title }}</a>
+          <span class="muted small"><br>Revision {{ c.revision_no }}, {{ c.ago }}</span></li>
+        {% endfor %}
+      </ul>
+      {% else %}<p class="muted small">Changes appear here after the first collection.</p>{% endif %}
+    </section>
+    <section class="card">
+      <h2>Sources</h2>
+      {% for s in stats.sources %}
+        <div class="source-chip"><span>{{ s.name }}</span>
+          {% if s.last_status == 'failed' %}<span class="pill pill-withdrawn">Failed</span>
+          {% elif s.last_status == 'success' %}<span class="pill pill-active">OK</span>
+          {% else %}<span class="pill pill-expired">Not checked</span>{% endif %}</div>
+      {% else %}<p class="muted small">No sources enabled.</p>{% endfor %}
+    </section>
+  </aside>
+</div>
+{% endblock %}

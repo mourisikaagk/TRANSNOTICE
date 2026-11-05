@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Map | TransitNotice{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}">{% endblock %}
+{% block content %}
+<h1>Service map</h1>
+{% set action = url_for('map_page') %}
+{% include "_filters.html" %}
+
+<section class="panel">
+  <h2>Street map</h2>
+  <div class="legend" aria-hidden="true"><span><i class="dot-active"></i>Active</span><span><i class="dot-upcoming"></i>Upcoming</span>
+    <span><i class="dot-stale"></i>Stale</span><span><i class="dot-expired"></i>Expired</span><span><i class="dot-withdrawn"></i>Withdrawn</span></div>
+  <div id="map" class="map" data-pins='{{ pins|tojson }}' data-tiles="{{ 1 if map_tiles else 0 }}" data-center="{{ map_center|join(',') }}"
+       role="application" aria-label="Map of notices that have a location"></div>
+  <p class="map-note">{{ pinned }} of {{ notices|length }} notices in this view have a location from their source. Notices without coordinates are not placed on the map; positions are never guessed.
+    
+    Map data from <a href="https://www.openstreetmap.org/copyright" rel="noopener noreferrer" target="_blank">OpenStreetMap contributors</a>; tiles need an internet connection.</p>
+</section>
+
+<section class="panel">
+  <h2>Service diagram</h2>
+  <p class="muted small">One line per route. Each dot is a current notice (active, upcoming or stale). This is a schematic: dots are evenly spaced and do not show geography.</p>
+  {% if diagram.rows %}
+  <svg class="diagram" viewBox="0 0 {{ diagram.width }} {{ diagram.height }}" role="img" aria-label="Service status by route">
+    {% for row in diagram.rows %}
+    <g>
+      <line class="dg-line" x1="{{ diagram.left - 20 }}" y1="{{ row.y }}" x2="{{ diagram.right }}" y2="{{ row.y }}"/>
+      <g class="{{ row.route|route_class }}"><rect class="dg-badge" x="12" y="{{ row.y - 18 }}" width="70" height="36" rx="6"/>
+        <text class="dg-badge-text" x="47" y="{{ row.y + 6 }}">{{ row.route }}</text></g>
+      {% for node in row.nodes %}
+      <a href="{{ url_for('notice_detail', notice_id=node.id) }}">
+        <circle class="dg-node dg-{{ node.status }}" cx="{{ node.x }}" cy="{{ row.y }}" r="11"><title>{{ node.title }} ({{ node.status }})</title></circle>
+        <text class="dg-label" x="{{ node.x }}" y="{{ row.y + 32 }}">{{ node.label }}</text>
+      </a>
+      {% endfor %}
+    </g>
+    {% endfor %}
+  </svg>
+  {% else %}
+  <div class="empty"><h2>No current notices to draw</h2><p>Active, upcoming and stale notices appear here after a collection.</p></div>
+  {% endif %}
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Admin sign-in | TransitNotice{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <h1>Admin sign-in</h1>
+  <p class="muted">Admin tools run source checks, change demo scenarios and manage subscriptions.</p>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="field"><label for="token">Admin token</label>
+      <input id="token" name="token" type="password" autocomplete="current-password" required></div>
+    <button class="btn btn-primary" type="submit">Sign in</button>
+  </form>
+</section>
+{% endblock %}

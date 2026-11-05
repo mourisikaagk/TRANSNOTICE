@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-view="feed">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>{% block title %}TransitNotice{% endblock %}</title>
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head_extra %}{% endblock %}
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+<body data-account="{{ 1 if current_user else 0 }}" data-followed="{{ followed|join(',') }}">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap header-row">
+      <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark" aria-hidden="true">TN</span> TransitNotice</a>
+      <nav class="main-nav" aria-label="Main">
+        <a href="{{ url_for('index') }}" {% if request.endpoint in ('index', 'notice_detail') %}aria-current="page"{% endif %}>Notices</a>
+        <a href="{{ url_for('map_page') }}" {% if request.endpoint == 'map_page' %}aria-current="page"{% endif %}>Map</a>
+        <a href="{{ url_for('my_routes') }}" {% if request.endpoint == 'my_routes' %}aria-current="page"{% endif %}>My routes</a>
+      </nav>
+      <div class="head-tools">
+        {% if is_admin %}<label class="switch"><input type="checkbox" id="dev-toggle"><span class="track" aria-hidden="true"></span>Developer view</label>{% endif %}
+        <button class="chip-btn" type="button" id="theme-toggle" aria-pressed="false">Dark mode</button>
+        {% if current_user %}<a class="head-link" href="{{ url_for('account') }}">{{ current_user.email }}</a>
+        {% else %}<a class="head-link" href="{{ url_for('account') }}">Sign in</a>{% endif %}
+        {% if is_admin %}<a class="head-link" href="{{ url_for('admin') }}">Admin</a>
+        {% else %}<a class="head-link" href="{{ url_for('admin_login') }}">Admin sign-in</a>{% endif %}
+      </div>
+    </div>
+  </header>
+  <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+  <main id="main" class="wrap">
+    {% if request.endpoint != 'index' %}<a class="back-btn" href="{{ url_for('index') }}" data-back><span aria-hidden="true">&larr;</span> Back</a>{% endif %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}<p class="flash flash-{{ category }}">{{ message }}</p>{% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="wrap site-footer">
+    Times are shown in {{ tz_name }}; stored in UTC. A notice is marked stale after {{ freshness_minutes }} minutes without confirmation.
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

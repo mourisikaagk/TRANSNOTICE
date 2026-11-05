@@ -1,0 +1,22 @@
+<form class="filters" method="get" action="{{ action }}" role="search">
+  <div class="field field-wide"><label for="q">Search</label>
+    <input id="q" name="q" type="search" value="{{ filters.q }}" placeholder="Route, area, agency or keyword"></div>
+  <div class="field"><label for="route">Route</label>
+    <select id="route" name="route"><option value="">All routes</option>
+      {% for r in options.routes %}<option value="{{ r }}" {% if r == filters.route %}selected{% endif %}>{{ r }}</option>{% endfor %}</select></div>
+  <div class="field"><label for="type">Type</label>
+    <select id="type" name="type"><option value="">All types</option>
+      {% for t in options.types %}<option value="{{ t }}" {% if t == filters.notice_type %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></div>
+  <div class="field"><label for="status">Status</label>
+    <select id="status" name="status"><option value="">Any status</option>
+      {% for s in statuses %}<option value="{{ s }}" {% if s == filters.status %}selected{% endif %}>{{ s|capitalize }}</option>{% endfor %}</select></div>
+  <div class="field"><label for="agency">Agency</label>
+    <select id="agency" name="agency"><option value="">All agencies</option>
+      {% for a in options.agencies %}<option value="{{ a.code }}" {% if a.code == filters.agency %}selected{% endif %}>{{ a.name }}</option>{% endfor %}</select></div>
+  <div class="field"><label for="date">Service date</label>
+    <input id="date" name="date" type="date" value="{{ filters.service_date }}"></div>
+  <div class="field field-actions">
+    <button class="btn" type="submit">Apply</button>
+    {% if filters.active_count() %}<a class="btn btn-quiet" href="{{ action }}">Clear</a>{% endif %}
+  </div>
+</form>

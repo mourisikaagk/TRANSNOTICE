@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_macros.html" import notice_rows %}
+{% block title %}My routes | TransitNotice{% endblock %}
+{% block content %}
+<h1>My routes</h1>
+<div id="my-routes">
+  <p class="muted">Saved to your account. Alerts for these routes appear below.</p>
+  <div class="chips" aria-label="Followed routes">
+    {% for r in routes %}<span class="chip"><a class="route {{ r|route_class }}" href="{{ url_for('index', route=r) }}">{{ r }}</a>
+      <button type="button" data-unfollow="{{ r }}" aria-label="Stop following route {{ r }}">&times;</button></span>
+    {% else %}<span class="muted">You are not following any routes yet.</span>{% endfor %}
+  </div>
+  <div class="add-route">
+    <label class="sr" for="add-route-select" hidden>Route</label>
+    <select id="add-route-select"><option value="">Choose a route</option>
+      {% for r in options.routes if r not in routes %}<option value="{{ r }}">{{ r }}</option>{% endfor %}</select>
+    <button class="btn btn-primary" type="button" id="add-route-btn">Follow</button>
+  </div>
+</div>
+
+<section class="panel"><h2>Your alerts</h2>
+  <p class="muted small">Alerts are recorded here when a followed route's notice is new or changes. Each change is recorded once.</p>
+  {% if alerts %}<ul class="plain">{% for a in alerts %}
+    <li><a href="{{ url_for('notice_detail', notice_id=a.notice_id) }}">{{ a.subject }}</a>
+      <span class="muted small">{{ a.created_at|local_dt }}, {{ 'recorded in this app' if a.status == 'demo_logged' else a.status|replace('_', ' ') }}</span></li>{% endfor %}</ul>
+  {% else %}<p class="muted">No alerts yet.</p>{% endif %}
+</section>
+
+<h2>Notices on your routes</h2>
+{% if notices %}{{ notice_rows(notices, is_admin) }}
+{% elif routes %}<div class="empty"><h2>No notices on your routes</h2><p>Nothing has been published for {{ routes|join(', ') }}.</p></div>
+{% else %}<div class="empty"><h2>Follow a route to see its notices</h2><p>Pick a route above, or open any notice and press Follow.</p></div>{% endif %}
+{% endblock %}

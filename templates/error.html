@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} | TransitNotice{% endblock %}
+{% block content %}
+<div class="empty">
+  <h1>{{ 'Page not found' if code == 404 else 'Something went wrong' }}</h1>
+  <p>{{ message }}</p>
+  <a class="btn" href="{{ url_for('index') }}">Back to notices</a>
+</div>
+{% endblock %}

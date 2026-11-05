@@ -1,0 +1,48 @@
+{% macro route_badges(routes, limit=0) %}
+  <span class="routes" aria-label="Routes">
+    {% for r in routes %}{% if not limit or loop.index <= limit %}<a class="route {{ r|route_class }}" href="{{ url_for('index', route=r) }}" title="Show notices for route {{ r }}">{{ r }}</a>{% endif %}{% endfor %}
+    {% if limit and routes|length > limit %}<span class="route route-more">+{{ routes|length - limit }}</span>{% endif %}
+    {% if not routes %}<span class="muted">No route listed</span>{% endif %}
+  </span>
+{% endmacro %}
+
+{% macro status_pill(notice) %}
+  {% set labels = {'active': 'Active', 'upcoming': 'Upcoming', 'expired': 'Expired', 'withdrawn': 'Withdrawn', 'stale': 'Stale'} %}
+  <span class="pill pill-{{ notice.status }}">{{ labels[notice.status] }}</span>
+  {% if notice.status == 'stale' %}<span class="pill-note">was {{ notice.lifecycle }}</span>{% endif %}
+{% endmacro %}
+
+{% macro validity(notice) %}
+  {% if notice.valid_from %}{{ notice.valid_from|local_dt(False) }}{% else %}Start not stated{% endif %}
+  <span class="arrow" aria-hidden="true">to</span>
+  {% if notice.valid_to %}{{ notice.valid_to|local_dt(False) }}{% else %}<em>No end date announced</em>{% endif %}
+{% endmacro %}
+
+{% macro follow_button(route) %}
+  <button class="btn btn-small" type="button" data-follow="{{ route }}" aria-pressed="false">Follow {{ route }}</button>
+{% endmacro %}
+
+{% macro notice_rows(notices, show_dev=False) %}
+<ul class="board">
+  {% for n in notices %}
+  <li class="row row-{{ n.status }}">
+    <div class="cell-routes {% if n.routes %}{{ n.routes[0]|route_class }}{% endif %}">
+      {% for r in n.routes[:3] %}<a class="route {{ r|route_class }}" href="{{ url_for('index', route=r) }}" title="Show notices for route {{ r }}">{{ r }}</a>{% endfor %}
+      {% if n.routes|length > 3 %}<span class="route route-more">+{{ n.routes|length - 3 }}</span>{% endif %}
+      {% if not n.routes %}<span class="route">?</span>{% endif %}
+    </div>
+    <div class="cell-main">
+      <a class="row-title" href="{{ url_for('notice_detail', notice_id=n.id) }}">{{ n.title }}</a>
+      <p class="row-meta"><span class="tag">{{ n.notice_type }}</span>{% if n.area %}{{ n.area }}{% endif %}
+        </p>
+    </div>
+    <div class="cell-status">{{ status_pill(n) }}</div>
+    <div class="cell-window"><span class="label">Valid</span>{{ validity(n) }}</div>
+    <div class="cell-verified"><span class="label">Confirmed</span>
+      <time data-ts="{{ n.last_confirmed_at }}" title="{{ n.last_confirmed_at|local_dt }}">{{ n.confirmed_ago }}</time></div>
+    {% if show_dev %}<div class="dev-only dev-info">id={{ n.id }} source_id={{ n.external_id }} revisions={{ n.revision_count }} hash={{ n.content_hash[:16] }}
+      lifecycle={{ n.lifecycle }} valid_from={{ n.valid_from or 'null' }} valid_to={{ n.valid_to or 'null' }} last_changed={{ n.last_changed_at }}</div>{% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% endmacro %}

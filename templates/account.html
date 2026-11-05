@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Account | TransitNotice{% endblock %}
+{% block content %}
+{% if tab == 'manage' %}
+<section class="panel narrow">
+  <h1>Your account</h1>
+  <p>Signed in as <strong>{{ current_user.email }}</strong>.</p>
+  <p class="muted small">We store only your e-mail address, a salted password hash, the routes you follow and your alert history. Alerts are recorded in this app; e-mail is not used for account alerts.</p>
+  <p><a class="btn btn-primary" href="{{ url_for('my_routes') }}">Go to My routes</a></p>
+  <form method="post" action="{{ url_for('account_logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button class="btn" type="submit">Sign out</button></form>
+  <h2>Delete account</h2>
+  <form method="post" action="{{ url_for('account_delete') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="field"><label for="del-pass">Confirm your password</label><input id="del-pass" name="password" type="password" autocomplete="current-password" required></div>
+    <p><button class="btn btn-danger" type="submit">Delete my account and data</button></p>
+  </form>
+</section>
+{% else %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <a href="{{ url_for('account', tab='login') }}" {% if tab == 'login' %}aria-current="page"{% endif %}>Log in</a>
+      <a href="{{ url_for('account', tab='signup') }}" {% if tab == 'signup' %}aria-current="page"{% endif %}>Sign up</a>
+    </div>
+    {% if tab == 'login' %}
+    <form class="auth-body" method="post" action="{{ url_for('account_login') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+      <button class="btn btn-primary" type="submit">Log in</button>
+    </form>
+    {% else %}
+    <form class="auth-body" method="post" action="{{ url_for('account_signup') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="password">Password (8 or more characters)</label><input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required></div>
+      <div class="field"><label for="confirm">Confirm password</label><input id="confirm" name="confirm" type="password" autocomplete="new-password" minlength="8" required></div>
+      <button class="btn btn-primary" type="submit">Create account</button>
+    </form>
+    {% endif %}
+  </div>
+  <p class="muted small">An account lets you save followed routes and see your alerts. You can also use My routes without an account; routes are then saved in this browser only.</p>
+</div>
+{% endif %}
+{% endblock %}
