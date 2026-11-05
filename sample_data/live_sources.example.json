@@ -1,0 +1,19 @@
+{
+  "_about": "EXAMPLE ONLY. Nothing here is an approved source. A source is enabled only when enabled=true, permission_status='approved' and approval_document names a completed approval. See docs/SOURCE_APPROVAL.md.",
+  "sources": [
+    {
+      "code": "EXAMPLE-RSS",
+      "agency_code": "EXAMPLE",
+      "agency_name": "Example Transit Authority",
+      "name": "Example service alerts feed",
+      "type": "rss",
+      "url": "https://example.org/alerts.rss",
+      "timezone": "Asia/Kolkata",
+      "refresh_minutes": 30,
+      "complete_listing": false,
+      "permission_status": "not_reviewed",
+      "approval_document": "",
+      "enabled": false
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "_about": "DEMO DATA. Fictional notices for 'Demo City Transit'. Times are offsets from the moment the demo feed is reset, so the demo always contains active, upcoming and expired notices. These are not real transport announcements. Map positions are arbitrary offsets from map_center and are NOT real closures.",
+  "agency": {
+    "code": "DEMO-DCT",
+    "name": "Demo City Transit (sample data)"
+  },
+  "notices": [
+    {
+      "id": "DEMO-001",
+      "type": "Planned Maintenance",
+      "routes": [
+        "12A",
+        "12B"
+      ],
+      "title": "Riverside Bridge closed for maintenance",
+      "area": "Riverside Bridge and Old Dock Road",
+      "summary": "Buses on routes 12A and 12B cannot cross Riverside Bridge. Board at the temporary stops on Old Dock Road.",
+      "published_hours_ago": 20,
+      "starts_in_hours": -6,
+      "ends_in_hours": 30,
+      "status": "Active",
+      "dlat": 0.012,
+      "dlon": -0.018
+    },
+    {
+      "id": "DEMO-002",
+      "type": "Diversion",
+      "routes": [
+        "45",
+        "45X"
+      ],
+      "title": "Market Road diversion for street festival",
+      "area": "Central Market Road",
+      "summary": "Routes 45 and 45X will use Canal Street between the Library and Town Hall stops.",
+      "published_hours_ago": 10,
+      "starts_in_hours": 20,
+      "ends_in_hours": 70,
+      "status": "Scheduled",
+      "dlat": -0.006,
+      "dlon": 0.01
+    },
+    {
+      "id": "DEMO-003",
+      "type": "Delay",
+      "routes": [
+        "7X"
+      ],
+      "title": "Signal fault causing delays on Express 7X",
+      "area": "Northgate Interchange",
+      "summary": "Expect delays of up to 15 minutes while the signal fault is repaired.",
+      "published_hours_ago": 3,
+      "starts_in_hours": -3,
+      "ends_in_hours": 6,
+      "status": "Active",
+      "dlat": 0.03,
+      "dlon": 0.004
+    },
+    {
+      "id": "DEMO-004",
+      "type": "Stop Closure",
+      "routes": [
+        "101"
+      ],
+      "title": "Hillview Stop closed for pavement repair",
+      "area": "Hillview",
+      "summary": "Hillview Stop was closed. Use the next stop on Orchard Lane.",
+      "published_hours_ago": 72,
+      "starts_in_hours": -60,
+      "ends_in_hours": -12,
+      "status": "Expired",
+      "dlat": -0.02,
+      "dlon": -0.008
+    },
+    {
+      "id": "DEMO-005",
+      "type": "Cancellation",
+      "routes": [
+        "22"
+      ],
+      "title": "Route 22 evening trips cancelled",
+      "area": "Harbour District",
+      "summary": "The last three evening trips on route 22 will not run.",
+      "published_hours_ago": 5,
+      "starts_in_hours": -2,
+      "ends_in_hours": 10,
+      "status": "Active",
+      "dlat": -0.012,
+      "dlon": 0.028
+    },
+    {
+      "id": "DEMO-006",
+      "type": "Stop Closure",
+      "routes": [
+        "9"
+      ],
+      "title": "Lakeside stop relocated, end date not announced",
+      "area": "Lakeside Park",
+      "summary": "The Lakeside stop has moved 200 m north. The agency has not announced when it will reopen.",
+      "published_hours_ago": 6,
+      "starts_in_hours": -4,
+      "ends_in_hours": null,
+      "status": "Active",
+      "dlat": 0.006,
+      "dlon": 0.02
+    }
+  ],
+  "map_center": [
+    13.0827,
+    80.2707
+  ]
+}
