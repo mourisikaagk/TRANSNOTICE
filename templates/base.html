@@ -38,8 +38,8 @@
     {% endwith %}
     {% block content %}{% endblock %}
   </main>
-  <footer class="wrap site-footer">
-    Times are shown in {{ tz_name }}; stored in UTC. A notice is marked stale after {{ freshness_minutes }} minutes without confirmation.
+    <footer class="wrap site-footer">
+    Times are shown in {{ tz_name }}; stored in UTC. A notice is marked stale after {{ freshness_minutes }} minutes without confirmation.{% if demo_mode %} Demo mode: sample data, not real transport information.{% endif %}
   </footer>
   {% block scripts %}{% endblock %}
 </body>
